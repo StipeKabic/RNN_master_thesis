@@ -26,6 +26,14 @@ def generate_time_series(batch_size: int, n_steps: int) -> np.ndarray:
 
 
 def generate_train_test(n_steps: int) -> DatasetMapping:
+    """
+    creates a train, val, test split for time series data
+    Args:
+        n_steps: length of each time series
+
+    Returns: DatasetMapping with all the data
+
+    """
     series = generate_time_series(10000, n_steps + 1)
     x_train, y_train = series[:7000, :n_steps], series[:7000, -1]
     x_valid, y_valid = series[7000:9000, :n_steps], series[7000:9000, -1]
@@ -53,6 +61,12 @@ class TSDataset(Dataset):
             x: np.ndarray,
             y: np.ndarray
     ):
+        """
+        Wrapper for time series dataset
+        Args:
+            x: stacked input time series
+            y: stacked targets
+        """
         self.x = x
         self.y = y
 
@@ -65,6 +79,12 @@ class TSDataset(Dataset):
 
 class TSDataModule(pl.LightningDataModule):
     def __init__(self, n_steps: int, batch_size: int):
+        """
+        Datamodule for time series dataset
+        Args:
+            n_steps: length of each time series
+            batch_size: batch size used for training
+        """
         super().__init__()
         self.n_steps = n_steps
         self.batch_size = batch_size

@@ -8,6 +8,14 @@ class SimpleRNN(nn.Module):
                  sequence_length: int,
                  batch_size: int
                  ):
+        """
+        Simple RNN + FCN implementation
+        Args:
+            input_size: dimension of each element of the input sequence
+            output_size: dimension of outputs of RNN layers
+            sequence_length: length of the sequence
+            batch_size: batch size that is given to the model
+        """
         super(SimpleRNN, self).__init__()
         self.input_size = input_size
         self.output_size = output_size
@@ -36,6 +44,14 @@ class SimpleLSTM(nn.Module):
                  sequence_length: int,
                  batch_size: int
                  ):
+        """
+        Simple LSTM + FCN implementation
+        Args:
+            input_size: dimension of each element of the input sequence
+            output_size: dimension of outputs of RNN layers
+            sequence_length: length of the sequence
+            batch_size: batch size that is given to the model
+        """
         super(SimpleLSTM, self).__init__()
         self.input_size = input_size
         self.output_size = output_size
