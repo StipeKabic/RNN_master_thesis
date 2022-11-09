@@ -1,4 +1,3 @@
-from typing import Callable
 from torch import Tensor, nn, optim
 import pytorch_lightning as pl
 
@@ -7,19 +6,17 @@ class LightningRNN(pl.LightningModule):
     def __init__(
             self,
             network: nn.Module,
-            loss: Callable,
-            optimizer: optim.Optimizer
-    ):
+            loss: nn.Module
+            ):
         super(LightningRNN, self).__init__()
         self.network = network
         self.loss = loss
-        self.optimizer = optimizer
 
     def forward(self, x: Tensor) -> Tensor:
         return self.network(x)
 
     def configure_optimizers(self) -> optim.Optimizer:
-        return self.optimizer
+        return optim.AdamW(self.parameters(), lr=3e-4)
 
     def training_step(self, batch, batch_idx):
         x, target = batch
