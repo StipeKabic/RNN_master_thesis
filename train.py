@@ -1,5 +1,5 @@
 from src.data.time_series_dataset.ts_dataset import TSDataModule
-from src.models.architectures.SimpleRNN import SimpleRNN
+from src.models.architectures.SimpleRNN import SimpleRNN, SimpleLSTM
 from src.models.LightningRNN import LightningRNN
 
 import pytorch_lightning as pl
@@ -11,7 +11,7 @@ BATCH_SIZE = 8
 
 def train():
     datamodule: pl.LightningDataModule = TSDataModule(n_steps=N_STEPS, batch_size=BATCH_SIZE)
-    network: nn.Module = SimpleRNN(
+    network: nn.Module = SimpleLSTM(
         input_size=1,
         output_size=20,
         sequence_length=N_STEPS,
