@@ -5,15 +5,18 @@ from src.models.LightningRNN import LightningRNN
 import pytorch_lightning as pl
 from torch import nn
 
+INPUT_SIZE = 1
+OUTPUT_SIZE = 20
 N_STEPS = 50
 BATCH_SIZE = 8
 
 
 def train():
-    datamodule: pl.LightningDataModule = TSDataModule(n_steps=N_STEPS, batch_size=BATCH_SIZE)
+    datamodule: pl.LightningDataModule = TSDataModule(
+        n_steps=N_STEPS, batch_size=BATCH_SIZE)
     network: nn.Module = SimpleLSTM(
-        input_size=1,
-        output_size=20,
+        input_size=INPUT_SIZE,
+        output_size=OUTPUT_SIZE,
         sequence_length=N_STEPS,
         batch_size=BATCH_SIZE
     )
