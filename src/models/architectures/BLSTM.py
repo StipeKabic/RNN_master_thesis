@@ -1,11 +1,8 @@
-from typing import Optional
-
-import numpy as np
 import torch
 import torch.nn as nn
 import torch.nn.functional as F
 from torch import Tensor
-from torch.nn import BatchNorm1d, Linear, LSTM, Parameter
+from torch.nn import BatchNorm1d, Linear, LSTM
 
 
 class BLSTM(nn.Module):
@@ -65,7 +62,7 @@ class BLSTM(nn.Module):
         # get current spectrogram shape
         nb_frames, nb_samples, nb_channels, nb_bins = x.data.shape
 
-        mix = x.detach().clone()
+        mix = x
 
         x = self.fc1(x.reshape(-1, nb_channels * self.nb_bins))
         x = self.bn1(x)
@@ -87,3 +84,32 @@ class BLSTM(nn.Module):
         x = F.relu(x) * mix
 
         return x.permute(1, 2, 3, 0)
+
+
+def main():
+    nb_samples = 4
+    nb_channels = 2
+    nb_bins = 1024
+    nb_frames = 200
+
+    shape = (nb_samples, nb_channels, nb_bins, nb_frames)
+
+    tensor = torch.rand(shape)
+    print(tensor.shape)
+
+    model = BLSTM(
+        nb_bins=nb_bins,
+        nb_channels=nb_channels,
+        hidden_size=512,
+        nb_layers=3
+    )
+    print(model)
+
+    output = model(tensor)
+    print(output.shape)
+
+    return
+
+
+if __name__ == "__main__":
+    main()
