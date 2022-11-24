@@ -13,7 +13,9 @@ BATCH_SIZE = 8
 
 def train():
     datamodule: pl.LightningDataModule = TSDataModule(
-        n_steps=N_STEPS, batch_size=BATCH_SIZE)
+        n_steps=N_STEPS,
+        batch_size=BATCH_SIZE
+    )
     network: nn.Module = SimpleLSTM(
         input_size=INPUT_SIZE,
         output_size=OUTPUT_SIZE,

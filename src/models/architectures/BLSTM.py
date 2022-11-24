@@ -17,15 +17,12 @@ class BLSTM(nn.Module):
 
         self.nb_output_bins = nb_bins
         self.nb_bins = self.nb_output_bins
-
         self.hidden_size = hidden_size
 
         self.fc1 = Linear(self.nb_bins * nb_channels, hidden_size, bias=False)
-
         self.bn1 = BatchNorm1d(hidden_size)
 
         lstm_hidden_size = hidden_size // 2
-
         self.lstm = LSTM(
             input_size=hidden_size,
             hidden_size=lstm_hidden_size,
@@ -37,7 +34,6 @@ class BLSTM(nn.Module):
 
         fc2_hiddensize = hidden_size * 2
         self.fc2 = Linear(in_features=fc2_hiddensize, out_features=hidden_size, bias=False)
-
         self.bn2 = BatchNorm1d(hidden_size)
 
         self.fc3 = Linear(
@@ -45,7 +41,6 @@ class BLSTM(nn.Module):
             out_features=self.nb_output_bins * nb_channels,
             bias=False,
         )
-
         self.bn3 = BatchNorm1d(self.nb_output_bins * nb_channels)
 
     def forward(self, x: Tensor) -> Tensor:
@@ -57,11 +52,8 @@ class BLSTM(nn.Module):
             y: nb_samples, nb_channels, nb_bins, nb_frames
         """
 
-        # permute so that batch is last for lstm
         x = x.permute(3, 0, 1, 2)
-        # get current spectrogram shape
         nb_frames, nb_samples, nb_channels, nb_bins = x.data.shape
-
         mix = x
 
         x = self.fc1(x.reshape(-1, nb_channels * self.nb_bins))
@@ -70,7 +62,6 @@ class BLSTM(nn.Module):
         x = torch.tanh(x)
 
         lstm_out = self.lstm(x)
-
         x = torch.cat([x, lstm_out[0]], -1)
 
         x = self.fc2(x.reshape(-1, x.shape[-1]))
