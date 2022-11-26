@@ -5,6 +5,7 @@ from typing import Optional
 import pytorch_lightning as pl
 from torch.utils.data import DataLoader, Dataset
 from torchaudio.datasets import MUSDB_HQ
+from tqdm import tqdm
 
 ROOT = "../../../data"
 
@@ -17,31 +18,46 @@ class MUSDBDataset(Dataset):
                  subset: str,
                  split: Optional[str]):
         super(MUSDBDataset, self).__init__()
-        self.sample_rate = 44100
+
+        self.sample_rate = sample_rate
         self.chunk_length = chunk_length
 
         self.sources = ["mixture", source]
+
         if subset in ("train", "validation"):
             assert split is not None
-        self.musdb = MUSDB_HQ(root=ROOT, subset=subset, split=split, sources=self.sources)
+
+        self.musdb = MUSDB_HQ(root=ROOT, subset=subset,
+                              split=split, sources=self.sources)
 
         with open(os.path.join(ROOT, "musdb18hq/lengths.json")) as f:
             lengths = json.load(f)
-            self.lengths = [
-                int(length // (self.chunk_length * self.sample_rate))
-                for length in lengths
-            ]
 
-        self.chunks = []
-        for i, length in enumerate(self.lengths):
-            for chunk in range(length):
-                self.chunks.append((i, chunk_length * self.sample_rate * chunk))
+        self.lengths = [
+            int(length // (self.chunk_length * self.sample_rate))
+            for length in lengths
+        ]
+
+        self.chunks = [
+            (i, chunk_length * self.sample_rate * chunk)
+            for i, length in enumerate(self.lengths)
+            for chunk in range(length)
+        ]
+
+        self.current_song = -1
+        self.current_waveform = None
 
     def __getitem__(self, index):
         song, start = self.chunks[index]
-        waveform, _, _, _ = self.musdb[song]
-        chunked_waveform = waveform[:, :, start:start + self.sample_rate * self.chunk_length]
-        mix, target = waveform[0, :, :].squeeze(0), waveform[1, :, :].squeeze(0)
+
+        if song != self.current_song:
+            waveform, _, _, _ = self.musdb[song]
+            self.current_waveform = waveform
+            self.current_song += 1
+
+        chunked_waveform = self.current_waveform[:, :, start:start + self.sample_rate * self.chunk_length]
+
+        mix, target = chunked_waveform[0, :, :].squeeze(0), chunked_waveform[1, :, :].squeeze(0)
 
         return mix, target
 
@@ -99,17 +115,17 @@ class MUSDBDataModule(pl.LightningDataModule):
 
 
 def main():
-    dataset = MUSDBDataset(
-        chunk_length=3,
-        sample_rate=44100,
-        source='bass',
-        subset='train',
-        split='train'
-    )
-    print(len(dataset))
-    print(dataset.chunks)
-    mix, target = dataset[len(dataset)-1]
-    print(mix.shape, target.shape)
+    # dataset = MUSDBDataset(
+    #     chunk_length=3,
+    #     sample_rate=44100,
+    #     source='bass',
+    #     subset='train',
+    #     split='train'
+    # )
+    # print(len(dataset))
+    # print(dataset.chunks)
+    # mix, target = dataset[len(dataset)-1]
+    # print(mix.shape, target.shape)
 
     datamodule = MUSDBDataModule(
         chunk_length=3,
@@ -118,9 +134,8 @@ def main():
         source='drums'
     )
 
-    for mix, target in datamodule.train_dataloader():
-        print(mix.shape, target.shape)
-        break
+    for mix, target in tqdm(datamodule.train_dataloader()):
+        pass
 
 
 if __name__ == "__main__":
