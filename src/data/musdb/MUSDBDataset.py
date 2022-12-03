@@ -1,13 +1,14 @@
 import json
 import os
-from typing import Optional
+from typing import Optional, List, Tuple
 
 import pytorch_lightning as pl
+from torch import Tensor
 from torch.utils.data import DataLoader, Dataset
 from torchaudio.datasets import MUSDB_HQ
 from tqdm import tqdm
 
-ROOT = "../../../data"
+ROOT = "data"
 
 
 class MUSDBDataset(Dataset):
@@ -17,37 +18,48 @@ class MUSDBDataset(Dataset):
                  source: str,
                  subset: str,
                  split: Optional[str]):
+        """
+        Dataset class for MUSDB
+        Args:
+            chunk_length: length of audio chunks in seconds
+            sample_rate: sample rate of audio in Hertz
+            source: instrument to separate, i.e. 'bass'
+            subset: subset of dataset ('train' or 'test')
+            split: None if subset is 'test', otherwise 'train' or 'validation'
+        """
         super(MUSDBDataset, self).__init__()
 
-        self.sample_rate = sample_rate
-        self.chunk_length = chunk_length
+        self.sample_rate: int = sample_rate
+        self.chunk_length: int = chunk_length
 
-        self.sources = ["mixture", source]
+        self.sources: List[str] = ["mixture", source]
 
         if subset in ("train", "validation"):
             assert split is not None
 
-        self.musdb = MUSDB_HQ(root=ROOT, subset=subset,
-                              split=split, sources=self.sources)
+        self.musdb: Dataset = MUSDB_HQ(root=ROOT,
+                                       subset=subset,
+                                       split=split,
+                                       sources=self.sources)
 
         with open(os.path.join(ROOT, "musdb18hq/lengths.json")) as f:
-            lengths = json.load(f)
+            lengths: List[int] = json.load(f)
 
-        self.lengths = [
+        self.lengths: List[int] = [
             int(length // (self.chunk_length * self.sample_rate))
             for length in lengths
         ]
 
-        self.chunks = [
+        self.chunks: List[Tuple[int, int]] = [
             (i, chunk_length * self.sample_rate * chunk)
             for i, length in enumerate(self.lengths)
             for chunk in range(length)
         ]
 
-        self.current_song = -1
-        self.current_waveform = None
+        self.current_song: int = -1
+        self.current_waveform: Optional[Tensor] = None
 
-    def __getitem__(self, index):
+    def __getitem__(self, index: int) -> Tuple[Tensor, Tensor]:
         song, start = self.chunks[index]
 
         if song != self.current_song:
@@ -61,7 +73,7 @@ class MUSDBDataset(Dataset):
 
         return mix, target
 
-    def __len__(self):
+    def __len__(self) -> int:
         return len(self.chunks)
 
 
@@ -76,6 +88,8 @@ class MUSDBDataModule(pl.LightningDataModule):
         Datamodule for time series dataset
         Args:
             batch_size: batch size used for training
+            sample_rate: audio sample rate in Hertz
+            chunk_length: length of audio chunks in seconds
             source: instrument to separate
         """
         super().__init__()
@@ -115,18 +129,6 @@ class MUSDBDataModule(pl.LightningDataModule):
 
 
 def main():
-    # dataset = MUSDBDataset(
-    #     chunk_length=3,
-    #     sample_rate=44100,
-    #     source='bass',
-    #     subset='train',
-    #     split='train'
-    # )
-    # print(len(dataset))
-    # print(dataset.chunks)
-    # mix, target = dataset[len(dataset)-1]
-    # print(mix.shape, target.shape)
-
     datamodule = MUSDBDataModule(
         chunk_length=3,
         sample_rate=44100,
@@ -135,6 +137,8 @@ def main():
     )
 
     for mix, target in tqdm(datamodule.train_dataloader()):
+        print(mix.shape, target.shape)
+        break
         pass
 
 
