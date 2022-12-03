@@ -1,0 +1,2 @@
+_target_: src.models.spectrograms.spectrograms.Spectrogram
+n_fft: 2048

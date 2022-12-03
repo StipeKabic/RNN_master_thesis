@@ -8,11 +8,20 @@ from torch.nn import BatchNorm1d, Linear, LSTM
 class BLSTM(nn.Module):
     def __init__(
             self,
-            nb_bins: int = 4096,
-            nb_channels: int = 2,
-            hidden_size: int = 512,
-            nb_layers: int = 3,
+            nb_bins: int,
+            nb_channels: int,
+            hidden_size: int,
+            nb_layers: int ,
+            dropout: float
     ):
+        """
+        BLSTM model for music source separation
+        Args:
+            nb_bins: number of spectrogram bins
+            nb_channels: number of audio channels
+            hidden_size: rnn feature space dimension
+            nb_layers: number of BLSTM layers
+        """
         super(BLSTM, self).__init__()
 
         self.nb_output_bins = nb_bins
@@ -29,7 +38,7 @@ class BLSTM(nn.Module):
             num_layers=nb_layers,
             bidirectional=True,
             batch_first=False,
-            dropout=0.4 if nb_layers > 1 else 0,
+            dropout=dropout if nb_layers > 1 else 0,
         )
 
         fc2_hiddensize = hidden_size * 2
@@ -47,7 +56,6 @@ class BLSTM(nn.Module):
         """
         Args:
             x: nb_samples, nb_channels, nb_bins, nb_frames
-
         Returns:
             y: nb_samples, nb_channels, nb_bins, nb_frames
         """
@@ -75,32 +83,3 @@ class BLSTM(nn.Module):
         x = F.relu(x) * mix
 
         return x.permute(1, 2, 3, 0)
-
-
-def main():
-    nb_samples = 4
-    nb_channels = 2
-    nb_bins = 1024
-    nb_frames = 200
-
-    shape = (nb_samples, nb_channels, nb_bins, nb_frames)
-
-    tensor = torch.rand(shape)
-    print(tensor.shape)
-
-    model = BLSTM(
-        nb_bins=nb_bins,
-        nb_channels=nb_channels,
-        hidden_size=512,
-        nb_layers=3
-    )
-    print(model)
-
-    output = model(tensor)
-    print(output.shape)
-
-    return
-
-
-if __name__ == "__main__":
-    main()

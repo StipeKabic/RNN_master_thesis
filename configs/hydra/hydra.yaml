@@ -1,0 +1,2 @@
+run:
+  dir: ${paths.log_dir}/runs/${now:%Y-%m-%d}

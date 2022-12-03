@@ -8,28 +8,25 @@ class LightningRNN(pl.LightningModule):
             network: nn.Module,
             loss: nn.Module,
             spectrogram: nn.Module,
-            inverse_spectrogram: nn.Module
+            inverse_spectrogram: nn.Module,
+            learning_rate: float
             ):
         super(LightningRNN, self).__init__()
-        self.network = network
         self.loss = loss
-        self.spectrogram = spectrogram
-        self.inverse_spectrogram = inverse_spectrogram
+        self.learning_rate = learning_rate
 
         self.pipeline = nn.Sequential(
-            self.spectrogram,
-            self.network,
-            self.inverse_spectrogram
+            spectrogram,
+            network,
+            inverse_spectrogram
         )
 
     def forward(self, x: Tensor) -> Tensor:
-        x = self.spectrogram(x)
-        x = self.network(x)
-        x = self.inverse_spectrogram(x)
+        x = self.pipeline(x)
         return x
 
     def configure_optimizers(self) -> optim.Optimizer:
-        return optim.AdamW(self.parameters(), lr=3e-4)
+        return optim.AdamW(self.parameters(), lr=self.learning_rate)
 
     def training_step(self, batch, batch_idx):
         x, target = batch

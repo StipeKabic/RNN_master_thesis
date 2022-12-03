@@ -126,21 +126,3 @@ class MUSDBDataModule(pl.LightningDataModule):
 
     def test_dataloader(self) -> DataLoader:
         return DataLoader(self.test, self.batch_size)
-
-
-def main():
-    datamodule = MUSDBDataModule(
-        chunk_length=3,
-        sample_rate=44100,
-        batch_size=4,
-        source='drums'
-    )
-
-    for mix, target in tqdm(datamodule.train_dataloader()):
-        print(mix.shape, target.shape)
-        break
-        pass
-
-
-if __name__ == "__main__":
-    main()

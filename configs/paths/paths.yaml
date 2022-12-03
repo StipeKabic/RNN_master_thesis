@@ -1,0 +1,4 @@
+root_dir: models
+
+data_dir: ${paths.root_dir}/${run_name}
+log_dir: ${paths.data_dir}/logs/

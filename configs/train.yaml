@@ -1,0 +1,10 @@
+run_name: "Testing RNN training"
+description: "First experiments with RNN for MSS"
+
+defaults:
+  - _self_
+  - datamodule: Musdb.yaml
+  - model: LightningRNN.yaml
+  - trainer: trainer.yaml
+  - hydra: hydra.yaml
+  - paths: paths.yaml

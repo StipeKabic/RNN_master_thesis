@@ -1,0 +1,6 @@
+_target_: src.models.architectures.BLSTM.BLSTM
+nb_bins: 1025
+nb_channels: 4
+hidden_size: 512
+nb_layers: 3
+dropout: 0.4
