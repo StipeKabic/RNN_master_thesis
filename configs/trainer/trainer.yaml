@@ -1,2 +1,6 @@
 _target_: pytorch_lightning.Trainer
-overfit_batches: 1
+# max_epochs: 100
+# accelerator: "gpu"
+# devices: [1]
+gradient_clip_val: 5
+# overfit_batches: 1

@@ -1,5 +1,7 @@
-from torch import Tensor, nn, optim
 import pytorch_lightning as pl
+from torch import Tensor, nn, optim
+
+from src.models.evaluation.metrics import calculate_metrics
 
 
 class LightningRNN(pl.LightningModule):
@@ -26,18 +28,24 @@ class LightningRNN(pl.LightningModule):
         return x
 
     def configure_optimizers(self) -> optim.Optimizer:
-        return optim.AdamW(self.parameters(), lr=self.learning_rate)
+        return optim.Adam(self.parameters(), lr=self.learning_rate)
 
-    def training_step(self, batch, batch_idx):
+    def training_step(self, batch: Tensor, batch_idx: int):
         x, target = batch
         output = self.forward(x)
         loss = self.loss(output, target)
         self.log('training_loss', loss)
+
         return loss
 
-    def validation_step(self, batch, batch_idx):
+    def validation_step(self, batch: Tensor, batch_idx: int):
         x, target = batch
         output = self.forward(x)
         loss = self.loss(output, target)
-        self.log('validation_loss', loss)
+        self.log('validation_loss', loss, prog_bar=True)
+
+        metrics = calculate_metrics(target, output)
+        for metric_name, metric_value in metrics.items():
+            self.log(metric_name, metric_value, prog_bar=True)
+
         return loss

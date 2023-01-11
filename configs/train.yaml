@@ -5,6 +5,7 @@ defaults:
   - _self_
   - datamodule: Musdb.yaml
   - model: LightningRNN.yaml
+  - logger: tensorboard.yaml
   - trainer: trainer.yaml
   - hydra: hydra.yaml
   - paths: paths.yaml

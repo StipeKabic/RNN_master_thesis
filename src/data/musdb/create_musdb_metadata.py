@@ -11,16 +11,26 @@ def main():
     ROOT = "../../../data"
 
     chunk_length = 3
-    source = 'bass'
+    source = 'vocals'
     subset = 'train'
-    split = 'train'
     sources = ['mixture']
+
+    for split in {'train', 'validation'}:
+        musdb = DataLoader(MUSDB_HQ(root=ROOT, subset=subset, split=split, sources=sources))
+
+        lengths = [int(length) for _, sampling_rate, length, name in tqdm(musdb)]
+
+        with open(os.path.join(ROOT, f"musdb18hq/lengths_{split}.json"), "w") as f:
+            json.dump(lengths, f)
+
+    subset = 'test'
+    split = None
 
     musdb = DataLoader(MUSDB_HQ(root=ROOT, subset=subset, split=split, sources=sources))
 
     lengths = [int(length) for _, sampling_rate, length, name in tqdm(musdb)]
 
-    with open(os.path.join(ROOT, "musdb18hq/lengths.json"), "w") as f:
+    with open(os.path.join(ROOT, f"musdb18hq/lengths_{subset}.json"), "w") as f:
         json.dump(lengths, f)
 
 

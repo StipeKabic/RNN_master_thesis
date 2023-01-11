@@ -7,11 +7,12 @@ class Spectrogram(nn.Module):
         self.n_fft = n_fft
 
     def forward(self, x):
-        x = x.reshape(4,-1)
+        b, c, t = x.shape
+        x = x.reshape(b*c,t)
         x = stft(x, n_fft=self.n_fft, hop_length=490)
         x = x.permute(0,3,1,2)
         _, _, freq, time = x.shape
-        x = x.reshape(2, -1, freq, time)
+        x = x.reshape(b, -1, freq, time)
         return x
 
 

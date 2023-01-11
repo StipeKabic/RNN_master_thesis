@@ -1,9 +1,8 @@
 from typing import Dict
 
 import numpy as np
-from torch.utils.data import Dataset, DataLoader
-
 import pytorch_lightning as pl
+from torch.utils.data import Dataset, DataLoader
 
 DatasetMapping = Dict[str, Dict[str, np.ndarray]]
 
