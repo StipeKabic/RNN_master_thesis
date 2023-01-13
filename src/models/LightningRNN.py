@@ -49,3 +49,15 @@ class LightningRNN(pl.LightningModule):
             self.log(metric_name, metric_value, prog_bar=True)
 
         return loss
+
+    def test_step(self, batch: Tensor, batch_idx: int):
+        x, target = batch
+        output = self.forward(x)
+        loss = self.loss(output, target)
+        self.log('test_loss', loss, prog_bar=True)
+
+        metrics = calculate_metrics(target, output)
+        for metric_name, metric_value in metrics.items():
+            self.log(metric_name, metric_value, prog_bar=True)
+
+        return loss

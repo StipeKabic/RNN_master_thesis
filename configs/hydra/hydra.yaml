@@ -1,2 +1,3 @@
 run:
-  dir: ${paths.log_dir}/runs/${now:%Y-%m-%d}
+  dir: ${paths.log_dir}${run_name}
+output_subdir: config

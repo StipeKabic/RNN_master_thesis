@@ -27,7 +27,6 @@ class MUSDBDataset(Dataset):
             split: None if subset is 'test', otherwise 'train' or 'validation'
         """
         super(MUSDBDataset, self).__init__()
-
         self.sample_rate: int = sample_rate
         self.chunk_length: int = chunk_length
 
@@ -126,5 +125,5 @@ class MUSDBDataModule(pl.LightningDataModule):
     def val_dataloader(self) -> DataLoader:
         return DataLoader(self.valid, self.batch_size)
 
-    # def test_dataloader(self) -> DataLoader:
-    #     return DataLoader(self.test, self.batch_size)
+    def test_dataloader(self) -> DataLoader:
+        return DataLoader(self.test, self.batch_size)

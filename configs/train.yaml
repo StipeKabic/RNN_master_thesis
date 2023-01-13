@@ -1,5 +1,5 @@
-run_name: "Testing RNN training"
-description: "First experiments with RNN for MSS"
+run_name: ${datamodule.source}
+description: ${datamodule.source}
 
 defaults:
   - _self_
