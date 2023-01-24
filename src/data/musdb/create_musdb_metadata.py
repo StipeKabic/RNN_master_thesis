@@ -8,7 +8,7 @@ from tqdm import tqdm
 
 def main():
 
-    ROOT = "../../../data"
+    ROOT = "data"
 
     chunk_length = 3
     source = 'vocals'

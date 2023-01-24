@@ -34,7 +34,7 @@ class LightningRNN(pl.LightningModule):
         x, target = batch
         output = self.forward(x)
         loss = self.loss(output, target)
-        self.log('training_loss', loss)
+        self.log('training_loss', loss, on_epoch=True, on_step=False)
 
         return loss
 
@@ -42,11 +42,11 @@ class LightningRNN(pl.LightningModule):
         x, target = batch
         output = self.forward(x)
         loss = self.loss(output, target)
-        self.log('validation_loss', loss, prog_bar=True)
+        self.log('validation_loss', loss, prog_bar=True, on_epoch=True, on_step=False)
 
         metrics = calculate_metrics(target, output)
         for metric_name, metric_value in metrics.items():
-            self.log(metric_name, metric_value, prog_bar=True)
+            self.log(metric_name, metric_value, prog_bar=True, on_epoch=True, on_step=False)
 
         return loss
 

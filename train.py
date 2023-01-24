@@ -7,8 +7,7 @@ from omegaconf import DictConfig
 def train(cfg: DictConfig) -> None:
     datamodule: pl.LightningDataModule = hydra.utils.instantiate(cfg.datamodule)
     model: pl.LightningModule = hydra.utils.instantiate(cfg.model)
-    logger =  hydra.utils.instantiate(cfg.logger)
-    trainer: pl.Trainer = hydra.utils.instantiate(cfg.trainer, logger=logger)
+    trainer: pl.Trainer = hydra.utils.instantiate(cfg.trainer)
 
     trainer.fit(model=model, datamodule=datamodule)
     trainer.save_checkpoint(f"{cfg.paths.log_dir}{cfg.run_name}/final_model_{cfg.datamodule.source}.ckpt")

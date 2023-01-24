@@ -55,8 +55,7 @@ class SeparationBLSTM(nn.Module):
             in_features=hidden_size,
             out_features=self.nb_output_bins * nb_channels,
             bias=False
-            ),
-            BatchNorm1d(self.nb_output_bins * nb_channels)
+            )
         )
 
         print(self)
