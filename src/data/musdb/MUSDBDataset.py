@@ -1,6 +1,8 @@
 import json
 import os
 from typing import Optional, List, Tuple
+from timeit import default_timer as timer
+from datetime import timedelta
 
 import pytorch_lightning as pl
 from torch import Tensor
@@ -32,7 +34,7 @@ class MUSDBDataset(Dataset):
 
         self.sources: List[str] = ["mixture", source]
 
-        if subset in ("train", "validation"):
+        if subset == "train":
             assert split is not None
 
         self.musdb: Dataset = MUSDB_HQ(root=ROOT,
@@ -62,11 +64,13 @@ class MUSDBDataset(Dataset):
 
     def __getitem__(self, index: int) -> Tuple[Tensor, Tensor]:
         song, start = self.chunks[index]
-
         if song != self.current_song:
-            waveform, _, _, _ = self.musdb[song]
-            self.current_waveform = waveform
-            self.current_song += 1
+            try:
+                waveform, _, _, _ = self.musdb[song]
+                self.current_waveform = waveform
+                self.current_song = song
+            except:
+                self.current_song = song
 
         waveform_chunk = self.current_waveform[:, :, start:start + self.sample_rate * self.chunk_length]
 
@@ -94,27 +98,33 @@ class MUSDBDataModule(pl.LightningDataModule):
             source: instrument to separate
         """
         super().__init__()
+        self.train = None
+        self.valid = None
+        self.test = None
         self.batch_size = batch_size
         self.sources = ["mixture", source]
+        self.chunk_length = chunk_length
+        self.sample_rate = sample_rate
+        self.source = source
 
         self.train = MUSDBDataset(
-            chunk_length=chunk_length,
-            sample_rate=sample_rate,
-            source=source,
+            chunk_length=self.chunk_length,
+            sample_rate=self.sample_rate,
+            source=self.source,
             subset='train',
             split='train'
         )
         self.valid = MUSDBDataset(
-            chunk_length=chunk_length,
-            sample_rate=sample_rate,
-            source=source,
+            chunk_length=self.chunk_length,
+            sample_rate=self.sample_rate,
+            source=self.source,
             subset='train',
             split='validation'
         )
         self.test = MUSDBDataset(
-            chunk_length=chunk_length,
-            sample_rate=sample_rate,
-            source=source,
+            chunk_length=self.chunk_length,
+            sample_rate=self.sample_rate,
+            source=self.source,
             subset='test',
             split=None
         )

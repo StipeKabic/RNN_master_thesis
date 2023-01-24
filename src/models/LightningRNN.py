@@ -12,19 +12,19 @@ class LightningRNN(pl.LightningModule):
             spectrogram: nn.Module,
             inverse_spectrogram: nn.Module,
             learning_rate: float
-            ):
+    ):
         super(LightningRNN, self).__init__()
-        self.loss = loss
-        self.learning_rate = learning_rate
+        self.loss: nn.Module = loss
+        self.learning_rate: float = learning_rate
 
-        self.pipeline = nn.Sequential(
+        self.pipeline: nn.Module = nn.Sequential(
             spectrogram,
             network,
             inverse_spectrogram
         )
 
     def forward(self, x: Tensor) -> Tensor:
-        x = self.pipeline(x)
+        x: Tensor = self.pipeline(x)
         return x
 
     def configure_optimizers(self) -> optim.Optimizer:
