@@ -5,4 +5,4 @@ defaults:
   - spectrogram: spectrogram.yaml
   - inverse_spectrogram: inverse_spectrogram.yaml
 
-learning_rate: 3e-4
+learning_rate: 1e-3
